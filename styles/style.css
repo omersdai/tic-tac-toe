@@ -1,0 +1,117 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;1,700&display=swap");
+.tic-tac-toe .row > div i.icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  list-style: none;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: steelblue;
+}
+
+.title {
+  font-size: 4rem;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 1.8rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  -webkit-transition: -webkit-transform 0.2s ease-in;
+  transition: -webkit-transform 0.2s ease-in;
+  transition: transform 0.2s ease-in;
+  transition: transform 0.2s ease-in, -webkit-transform 0.2s ease-in;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+  -webkit-transform: scale(0.95);
+          transform: scale(0.95);
+}
+
+.tic-tac-toe {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  margin: 50px;
+}
+
+.tic-tac-toe .row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.tic-tac-toe .row > div {
+  height: 200px;
+  width: 200px;
+  position: relative;
+}
+
+.tic-tac-toe .row > div i.icon {
+  opacity: 0;
+  cursor: pointer;
+}
+
+.tic-tac-toe .row > div:hover i.icon {
+  opacity: 0.4;
+}
+
+.tic-tac-toe .row > div i.icon.active {
+  opacity: 1;
+  cursor: default;
+}
+
+.tic-tac-toe .row .top {
+  border-bottom: 20px solid black;
+}
+
+.tic-tac-toe .row .bottom {
+  border-top: 20px solid black;
+}
+
+.tic-tac-toe .row .left {
+  border-right: 20px solid black;
+}
+
+.tic-tac-toe .row .right {
+  border-left: 20px solid black;
+}
+/*# sourceMappingURL=style.css.map */

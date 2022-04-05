@@ -18,22 +18,23 @@ game.querySelectorAll('.row').forEach((row, yIdx) => {
     const icon = square.querySelector('i');
 
     square.addEventListener('click', () => {
-      if (!gameOver && !icon.classList.contains('active')) {
-        gameBoard[yIdx][xIdx] = crossTurn ? 'x' : 'o';
-        icon.classList.add('active');
+      if (gameOver || icon.classList.contains('active')) return;
+      console.log('Current Move: ', map[JSON.stringify(gameBoard)]);
+      gameBoard[yIdx][xIdx] = crossTurn ? 'x' : 'o';
+      console.log('Next Move: ', map[JSON.stringify(gameBoard)]);
+      icon.classList.add('active');
 
-        let winner = checkBoard();
-        if (winner || boardIsFull()) {
-          gameOver = true;
-          info.innerText = winner ? `${winner.toUpperCase()} wins!` : 'Draw!';
-          // remove hover of empty squares
-          icons.forEach((icon) => {
-            if (!icon.classList.contains('active')) icon.className = '';
-          });
-        } else {
-          crossTurn = !crossTurn;
-          switchTurns();
-        }
+      let winner = checkBoard(gameBoard);
+      if (winner || boardIsFull(gameBoard)) {
+        gameOver = true;
+        info.innerText = winner ? `${winner.toUpperCase()} wins!` : 'Draw!';
+        // remove hover of empty squares
+        icons.forEach((icon) => {
+          if (!icon.classList.contains('active')) icon.className = '';
+        });
+      } else {
+        crossTurn = !crossTurn;
+        switchTurns();
       }
     });
   });
@@ -47,44 +48,38 @@ restartBtn.addEventListener('click', () => {
   info.innerText = `${crossTurn ? 'X' : 'O'}'s turn`;
 });
 
-function checkBoard() {
+function checkBoard(board) {
   // diagonals
-  if (gameBoard[1][1]) {
-    if (
-      gameBoard[1][1] === gameBoard[0][0] &&
-      gameBoard[1][1] === gameBoard[2][2]
-    )
-      return gameBoard[1][1];
-    if (
-      gameBoard[1][1] === gameBoard[0][2] &&
-      gameBoard[1][1] === gameBoard[2][0]
-    )
-      return gameBoard[1][1];
+  if (board[1][1]) {
+    if (board[1][1] === board[0][0] && board[1][1] === board[2][2])
+      return board[1][1];
+    if (board[1][1] === board[0][2] && board[1][1] === board[2][0])
+      return board[1][1];
   }
 
-  for (let i = 0; i < gameBoard.length; i++) {
+  for (let i = 0; i < board.length; i++) {
     // rows
     if (
-      gameBoard[i][0] &&
-      gameBoard[i][0] === gameBoard[i][1] &&
-      gameBoard[i][0] === gameBoard[i][2]
+      board[i][0] &&
+      board[i][0] === board[i][1] &&
+      board[i][0] === board[i][2]
     )
-      return gameBoard[i][0];
+      return board[i][0];
     // cols
     if (
-      gameBoard[0][i] &&
-      gameBoard[0][i] === gameBoard[1][i] &&
-      gameBoard[0][i] === gameBoard[2][i]
+      board[0][i] &&
+      board[0][i] === board[1][i] &&
+      board[0][i] === board[2][i]
     )
-      return gameBoard[0][i];
+      return board[0][i];
   }
   return null;
 }
 
-function boardIsFull() {
-  for (let i = 0; i < gameBoard.length; i++) {
-    for (let j = 0; j < gameBoard[i].length; j++) {
-      if (!gameBoard[i][j]) return false;
+function boardIsFull(board) {
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[i].length; j++) {
+      if (!board[i][j]) return false;
     }
   }
   return true;
@@ -104,4 +99,72 @@ function getEmptyBoard() {
     [null, null, null],
     [null, null, null],
   ];
+}
+
+// AI Code
+const map = localStorage.getItem('tictactoe')
+  ? JSON.parse(localStorage.getItem('tictactoe'))
+  : {};
+function computeBestMoves() {
+  if (localStorage.getItem('tictactoe')) return;
+  const startTime = performance.now();
+  minimax(getEmptyBoard(), 0, true, map);
+  const endTime = performance.now();
+  console.log(
+    `Call to computeBestMoves took ${endTime - startTime} milliseconds`
+  );
+  localStorage.setItem('tictactoe', JSON.stringify(map));
+}
+
+function minimax(position, depth, maximizingPlayer, map) {
+  const winner = checkBoard(position);
+  if (winner) {
+    return winner === 'x'
+      ? { position, value: 1 / depth }
+      : { position, value: -1 / depth };
+  } else if (boardIsFull(position)) {
+    return { position, value: 0 };
+  }
+
+  const key = JSON.stringify(position);
+
+  if (maximizingPlayer) {
+    let maxEval = null;
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (!position[i][j]) {
+          const copy = copyBoard(position);
+          copy[i][j] = 'x';
+          const eval = minimax(copy, depth + 1, false, map);
+          if (maxEval === null || maxEval.value < eval.value) {
+            maxEval = eval;
+            map[key] = { move: copy, value: eval.value };
+          }
+        }
+      }
+    }
+    return maxEval;
+  } else {
+    let minEval = null;
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (!position[i][j]) {
+          const copy = copyBoard(position);
+          copy[i][j] = 'o';
+          const eval = minimax(copy, depth + 1, true, map);
+          if (minEval === null || minEval.value > eval.value) {
+            minEval = eval;
+            map[key] = { move: copy, value: eval.value };
+          }
+        }
+      }
+    }
+    return minEval;
+  }
+}
+
+computeBestMoves();
+
+function copyBoard(board) {
+  return [[...board[0]], [...board[1]], [...board[2]]];
 }

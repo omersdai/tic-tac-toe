@@ -46,6 +46,7 @@ restartBtn.addEventListener('click', () => {
   gameBoard = getEmptyBoard();
   icons.forEach((icon) => (icon.className = crossClass));
   info.innerText = `${crossTurn ? 'X' : 'O'}'s turn`;
+  localStorage.removeItem('tictactoe');
 });
 
 function checkBoard(board) {
@@ -119,11 +120,9 @@ function computeBestMoves() {
 function minimax(position, depth, maximizingPlayer, map) {
   const winner = checkBoard(position);
   if (winner) {
-    return winner === 'x'
-      ? { position, value: 1 / depth }
-      : { position, value: -1 / depth };
+    return winner === 'x' ? 1 / depth : -1 / depth;
   } else if (boardIsFull(position)) {
-    return { position, value: 0 };
+    return 0;
   }
 
   const key = JSON.stringify(position);
@@ -136,9 +135,11 @@ function minimax(position, depth, maximizingPlayer, map) {
           const copy = copyBoard(position);
           copy[i][j] = 'x';
           const eval = minimax(copy, depth + 1, false, map);
-          if (maxEval === null || maxEval.value < eval.value) {
+          if (maxEval === null || maxEval < eval) {
             maxEval = eval;
-            map[key] = { move: copy, value: eval.value };
+            map[key] = [{ move: [i, j], value: eval }];
+          } else if (maxEval !== null && maxEval === eval) {
+            map[key].push({ move: [i, j], value: eval });
           }
         }
       }
@@ -152,9 +153,11 @@ function minimax(position, depth, maximizingPlayer, map) {
           const copy = copyBoard(position);
           copy[i][j] = 'o';
           const eval = minimax(copy, depth + 1, true, map);
-          if (minEval === null || minEval.value > eval.value) {
+          if (minEval === null || minEval > eval) {
             minEval = eval;
-            map[key] = { move: copy, value: eval.value };
+            map[key] = [{ move: [i, j], value: eval }];
+          } else if (minEval !== null && minEval === eval) {
+            map[key].push({ move: [i, j], value: eval });
           }
         }
       }
